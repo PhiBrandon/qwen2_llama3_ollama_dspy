@@ -18,3 +18,6 @@ This repository contains code that is a simple test of Llama3 and Qwen 2.
 
 
 Youtube Guide: https://youtu.be/ZgkKsPuJHdo
+
+Thanks to contributors for testing additional combinations of prompts/models:
+https://github.com/hjvogel
