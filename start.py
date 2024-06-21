@@ -27,7 +27,7 @@ class ReviewSeverity(BaseModel):
 class ReviewCategory(BaseModel):
     """Categories of code changes."""
 
-    categories: list[str] = Field(..., description="Categorize the code changes. Examples... readability, maintainability, security, etc...")
+    categories: list[str] = Field(..., description="Categorize the changes of code given. Examples: readability, maintainability, security")
     explanations: str = Field(..., description="Explanation for category selections.")
 
 
@@ -62,7 +62,7 @@ class RawSeverity(dspy.Signature):
 
 
 class RawCategory(dspy.Signature):
-    """Categories that the code changes could be. Examples... readability, maintainability, security, etc... You sould give an explanation for each category that is chosen."""
+    """Categories that changes of could be. Examples: readability, maintainability, security. Give explanations for each category that is chosen."""
 
     code_changes: str = dspy.InputField()
     categories: str = dspy.OutputField()
@@ -70,7 +70,7 @@ class RawCategory(dspy.Signature):
 
 
 class ExtractCategoryJson(dspy.Signature):
-    """Extract the relevant information from the input into valid JSON. Donot add any additional text before or after."""
+    """Extract the relevant information from the input into valid JSON. No other chat text allowed outside clean JSON format output, before or after.  Example output: '''{ 'valid_json': "some values"} ''' """
 
     input_text: str = dspy.InputField()
     valid_json: ReviewCategory = dspy.OutputField()
@@ -129,19 +129,31 @@ class CategoryModule(dspy.Module):
         )
         return structured
 
+#ol_model = "llama3"
+#ol_model = "phi3"
+ol_model = "phi3:instruct" 
+#ol_model = "phi3:3.8b-mini-128k-instruct-q4_K_S" # crashes !!
+#ol_model = "phi3:medium" # crashes
+#ol_model = "phi3:14b-medium-128k-instruct-q4_0" # crashes !!
+#ol_model = "deepseek-coder-v2" #  max 128k! needs timeout_s=300
 
-client = dspy.OllamaLocal(model="llama3:latest", max_tokens=6000)
+client = dspy.OllamaLocal(model=ol_model, max_tokens=3000,temperature=0.002, timeout_s=300 )
 dspy.configure(lm=client)
 
-
+print("Model: " + ol_model)
+print("SummaryModule - Results")
 summary = SummaryModule()
 summary_output = summary(code_changes=review_text)
 print(summary_output)
 
+print()
+print("SeverityModule - Results")
 severity = SeverityModule()
 severity_output = severity(code_changes=review_text)
 print(severity_output)
 
+print()
+print("CategoryModule - Results")
 category = CategoryModule()
 category_output = category(code_changes=review_text)
 print(category_output)
