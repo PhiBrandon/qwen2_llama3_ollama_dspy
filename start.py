@@ -24,11 +24,15 @@ class ReviewSeverity(BaseModel):
         ..., description="Explanation for severity selection"
     )
 
+class Category(BaseModel):
+    category: str
+    explanation: str
+
 class ReviewCategory(BaseModel):
     """Categories of code changes."""
 
-    categories: list[str] = Field(..., description="Categorize the code changes. Examples... readability, maintainability, security, etc...")
-    explanations: str = Field(..., description="Explanation for category selections.")
+    categories: list[Category]
+    
 
 
 class Review(BaseModel):
@@ -130,7 +134,7 @@ class CategoryModule(dspy.Module):
         return structured
 
 
-client = dspy.OllamaLocal(model="llama3:latest", max_tokens=6000)
+client = dspy.OllamaLocal(model="dolphin-llama3", max_tokens=6000)
 dspy.configure(lm=client)
 
 

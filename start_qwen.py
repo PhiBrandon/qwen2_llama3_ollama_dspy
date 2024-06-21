@@ -110,8 +110,11 @@ class ReviewModule(dspy.Module):
         category = self.category(code_changes=code_changes).categories
         return Review(summary=summary, severity=severity, category=category)
 
-
-client = dspy.OllamaLocal(model="qwen2-7b:latest", max_tokens=10000)
+#dolphin-llama3
+#qwen2-7b:latest
+client = dspy.OllamaLocal(model="deepseek-coder-v2:16b", max_tokens=10000)
+client_qwen = dspy.OllamaLocal(model="qwen2-7b:latest", max_tokens=10000)
+client_dolphin = dspy.OllamaLocal(model="dolphin-llama3", max_tokens=10000)
 dspy.configure(lm=client)
 
 review = ReviewModule()
@@ -119,3 +122,17 @@ review_output: Review = review(code_changes=review_text)
 print(review_output.summary)
 print(review_output.severity)
 print(review_output.category)
+#print(client.history[-1])
+
+with dspy.context(lm=client_qwen):
+    review_output_qwen: Review = review(code_changes=review_text)
+    print(review_output_qwen.summary)
+    print(review_output_qwen.severity)
+    print(review_output_qwen.category)
+    #print(client_qwen.history[-1])
+with dspy.context(lm=client_dolphin):
+    review_output_dolphin: Review = review(code_changes=review_text)
+    print(review_output_dolphin.summary)
+    print(review_output_dolphin.severity)
+    print(review_output_dolphin.category)
+    #print(client_dolphin.history[-1])
