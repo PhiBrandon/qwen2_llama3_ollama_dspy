@@ -59,7 +59,7 @@ class RawSeverity(dspy.Signature):
 
 
 class RawCategory(dspy.Signature):
-    """Categories that changes of could be. Examples: readability, maintainability, security. Give explanations for each category that is chosen."""
+    """Categories that the code changes could be. Examples... readability, maintainability, security, etc... You sould give an explanation for each category that is chosen."""
 
     code_changes: str = dspy.InputField()
     categories: ReviewCategory = dspy.OutputField()
@@ -110,30 +110,12 @@ class ReviewModule(dspy.Module):
         category = self.category(code_changes=code_changes).categories
         return Review(summary=summary, severity=severity, category=category)
 
-#ol_model = "llama3" # crashes
-#ol_model = "phi3"
-ol_model = "phi3:instruct"
-#ol_model = "phi3:medium" #crashes
-#ol_model = "phi3:14b-medium-128k-instruct-q4_0" # crashes !!
-#ol_model = "deepseek-coder-v2" #128k needs timeout_s=300
 
-
-#client = dspy.OllamaLocal(model="qwen2-7b:latest", max_tokens=10000)
-client = dspy.OllamaLocal(model=ol_model, max_tokens=4000,temperature=0.002, timeout_s=300)
-
+client = dspy.OllamaLocal(model="gemma2:latest", max_tokens=10000)
 dspy.configure(lm=client)
 
 review = ReviewModule()
 review_output: Review = review(code_changes=review_text)
-
-print("Model: " + ol_model)
-print("Review - Results")
 print(review_output.summary)
-
-print()
-print("SeverityModule - Results")
 print(review_output.severity)
-
-print()
-print("CategoryModule - Results")
 print(review_output.category)
